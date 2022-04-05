@@ -20,4 +20,4 @@ Now you are ready to start the development server! Go ahead and run
 npm run dev
 ```
 
-Navigate your browser to `http://localhost:3000/` and follow the instructions to use service!
+Navigate your browser to `http://localhost:3000/` and follow the instructions to use the service!
