@@ -6,28 +6,16 @@ export default function PointsIndex() {
       <h1 className="text-center">
         Welcome to the Fetch Rewards "Points" Coding Exercise
       </h1>
-      <h2>Getting Started</h2>
-      <p>
-        To run this project locally, you need to have{" "}
-        <a href="https://nodejs.dev/">NodeJS</a> version 14 or higher and{" "}
-        <a href="https://npmjs.com">npm</a> installed on your machine.
-      </p>
-      <p>
-        After you clone the repository and navigate into the project's folder,
-        let's get the necessary packages installed by running:
-      </p>
-      <pre>npm install</pre>
-      <p>To make sure everything is set up correctly, run:</p>
-      <pre>npm run setup</pre>
-      <p>Now you are ready to start the development server! Go ahead and run</p>
-      <pre>npm run dev</pre>
       <h2>The Web Service</h2>
       <p>
-        You should now have the development server running. There are two ways
-        to interact with the Web Service, the GUI and the API.
+        There are two ways to interact with the Web Service, the GUI and the
+        API.
       </p>
       <h3>Using the GUI:</h3>
-      <p>You can interact with the GUI by clicking the links below:</p>
+      <p>
+        You can interact with the GUI by clicking the links below or in the menu
+        bar:
+      </p>
       <ul>
         <li>
           <Link to="/points/balances">Get Balances</Link>
