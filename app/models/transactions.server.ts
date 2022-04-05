@@ -57,3 +57,45 @@ export async function spendPoints(updatedTransactions: Transactions[]) {
   const addedTransactions = await Promise.all(transactionPromises);
   return addedTransactions;
 }
+
+export function isJson(str: string) {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+}
+
+// export async function getSpendableTransactions() {
+//   const transactions = await getTransactions();
+//   const positiveTransactions = transactions.filter(
+//     (transaction: Transactions) => transaction.points > 0
+//   );
+//   const negativeTransactions = transactions.filter(
+//     (transaction: Transactions) => transaction.points < 0
+//   );
+//   negativeTransactions.forEach((negativeT) => {
+//     let negPoints = negativeT.points;
+//     let negPayer = negativeT.payer;
+//     for (let positiveT of positiveTransactions) {
+//       let posPayer = positiveT.payer;
+//       if (posPayer === negPayer && positiveT.points > Math.abs(negPoints)) {
+//         positiveT.points += negPoints;
+//         negPoints = 0;
+//         console.log(posPayer, positiveT.points, negPayer, negPoints);
+//         return;
+//       } else if (
+//         posPayer === negPayer &&
+//         positiveT.points < Math.abs(negPoints)
+//       ) {
+//         negPoints += positiveT.points;
+//         positiveT.points = 0;
+//         console.log(posPayer, positiveT.points, negPayer, negPoints);
+//       }
+//     }
+//     if (negPoints === 0) return;
+//   });
+//   console.log("from spendable transactions", positiveTransactions);
+//   return positiveTransactions;
+// }

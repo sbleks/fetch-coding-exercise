@@ -7,38 +7,42 @@ async function seed() {
   const email = "rachel@remix.run";
 
   // cleanup the existing database
-  await prisma.user.delete({ where: { email } }).catch(() => {
+  // await prisma.user.delete({ where: { email } }).catch(() => {
+  //   // no worries if it doesn't exist yet
+  // });
+
+  await prisma.transactions.deleteMany({}).catch(() => {
     // no worries if it doesn't exist yet
   });
 
-  const hashedPassword = await bcrypt.hash("racheliscool", 10);
+  // const hashedPassword = await bcrypt.hash("racheliscool", 10);
 
-  const user = await prisma.user.create({
-    data: {
-      email,
-      password: {
-        create: {
-          hash: hashedPassword,
-        },
-      },
-    },
-  });
+  // const user = await prisma.user.create({
+  //   data: {
+  //     email,
+  //     password: {
+  //       create: {
+  //         hash: hashedPassword,
+  //       },
+  //     },
+  //   },
+  // });
 
-  await prisma.note.create({
-    data: {
-      title: "My first note",
-      body: "Hello, world!",
-      userId: user.id,
-    },
-  });
+  // await prisma.note.create({
+  //   data: {
+  //     title: "My first note",
+  //     body: "Hello, world!",
+  //     userId: user.id,
+  //   },
+  // });
 
-  await prisma.note.create({
-    data: {
-      title: "My second note",
-      body: "Hello, world!",
-      userId: user.id,
-    },
-  });
+  // await prisma.note.create({
+  //   data: {
+  //     title: "My second note",
+  //     body: "Hello, world!",
+  //     userId: user.id,
+  //   },
+  // });
 
   await prisma.transactions.create({
     data: { payer: "DANNON", points: 1000, timestamp: "2020-11-02T14:00:00Z" },
