@@ -1,4 +1,4 @@
-import { Link, Outlet } from "remix";
+import { Outlet } from "remix";
 
 export default function FetchLayout() {
   return (
