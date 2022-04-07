@@ -18,7 +18,9 @@ export async function getBalances() {
 }
 
 export async function addTransaction(transactions: Transactions[]) {
+  //Prisma doesn't support createMany (bulk insert) with an SQLite database so I have to do it manually.
   const transactionPromises: Promise<Transactions>[] = [];
+
   transactions.map((transaction) => {
     return transactionPromises.push(
       prisma.transactions.create({
@@ -55,12 +57,15 @@ export async function getFullTransactions() {
 
 export async function getSpendableTransactions() {
   const transactions = await getFullTransactions();
+  //I create two arrays to store the transactions with a positive points value and the transactions with a negative points value.
   const positiveTransactions = transactions.filter(
     (transaction: Transactions): boolean => transaction.points > 0
   );
   const negativeTransactions = transactions.filter(
     (transaction: Transactions) => transaction.points < 0
   );
+
+  //Here I "spend" the points that are already in the transaction list to get only the transactions with points that are available to spend.
   negativeTransactions.forEach((negativeT) => {
     let negPayer = negativeT.payer;
     for (let positiveT of positiveTransactions) {
@@ -95,6 +100,7 @@ export async function distributePoints({
   let remainingSpend = pointsToSpend;
   let updatedTransactions: Transactions[] = [];
 
+  //Here I distribute the points to the oldest transactions first making sure that none of the transactions are overspent. Once a spend occurs I add that transaction to the updatedTransactions array. Once all of the transactions have been updated I return the updatedTransactions array and the remainingSpend value. If there are remaining points returned the API will return an insufficient funds error.
   spendableTransactions.map((transaction) => {
     if (remainingSpend === 0 || transaction.points === 0) return null;
     else if (transaction.points >= remainingSpend) {
@@ -144,7 +150,9 @@ export async function clearDB() {
 }
 
 export async function seedDB() {
-  await prisma.transactions.deleteMany({}).catch(() => {});
+  await prisma.transactions.deleteMany({}).catch(() => {
+    //This is here to prevent an error if the database is already empty.
+  });
   await prisma.transactions.create({
     data: { payer: "DANNON", points: 1000, timestamp: "2020-11-02T14:00:00Z" },
   });
