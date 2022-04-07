@@ -33,20 +33,11 @@ describe("get balances", () => {
   it("get balances", async () => {
     await seedDB();
     const balances = await getBalances();
-    expect(balances).toEqual([
-      {
-        payer: "DANNON",
-        points: 1100,
-      },
-      {
-        payer: "MILLER COORS",
-        points: 10000,
-      },
-      {
-        payer: "UNILEVER",
-        points: 200,
-      },
-    ]);
+    expect(balances).toEqual({
+      DANNON: 1100,
+      "MILLER COORS": 10000,
+      UNILEVER: 200,
+    });
   });
 });
 
@@ -93,9 +84,9 @@ describe("spend points", () => {
     await seedDB();
     const data = JSON.parse(jsonPoints);
     const pointsToSpend = data.points;
-    const positiveTransactions = await getSpendableTransactions();
+    const spendableTransactions = await getSpendableTransactions();
     const { remainingSpend, updatedTransactions } = await distributePoints({
-      positiveTransactions,
+      spendableTransactions,
       pointsToSpend,
     });
     const finalTransactions = updatedTransactions.map(
@@ -127,9 +118,9 @@ describe("spend points", () => {
   it("spend another 5000 points", async () => {
     const data = JSON.parse(jsonPoints);
     const pointsToSpend = data.points;
-    const positiveTransactions = await getSpendableTransactions();
+    const spendableTransactions = await getSpendableTransactions();
     const { remainingSpend, updatedTransactions } = await distributePoints({
-      positiveTransactions,
+      spendableTransactions,
       pointsToSpend,
     });
     const finalTransactions = updatedTransactions.map(
@@ -152,11 +143,56 @@ describe("spend points", () => {
   it("no negative balances", async () => {
     await clearDB();
     const pointsToSpend = 5000;
-    const positiveTransactions = await getSpendableTransactions();
+    const spendableTransactions = await getSpendableTransactions();
     const { remainingSpend } = await distributePoints({
-      positiveTransactions,
+      spendableTransactions,
       pointsToSpend,
     });
     expect(remainingSpend).toBe(5000);
+  });
+
+  it("Use the api", async () => {
+    await seedDB();
+    const res = await fetch("http://localhost:3000/api/spend", {
+      body: `{ "points": 5000 }`,
+      method: "POST",
+    });
+    const spentTransactions = await res.json();
+    expect(spentTransactions.length).toBe(3);
+    expect(spentTransactions).toEqual([
+      {
+        payer: "DANNON",
+        points: -100,
+      },
+      {
+        payer: "UNILEVER",
+        points: -200,
+      },
+      {
+        payer: "MILLER COORS",
+        points: -4700,
+      },
+    ]);
+  });
+
+  it("return not enough points", async () => {
+    const res = await fetch("http://localhost:3000/api/spend", {
+      body: `{ "points": 100000 }`,
+      method: "POST",
+    });
+    const spentTransactions = await res.json();
+    expect(spentTransactions).toBe(
+      "Insufficient balance to spend 100000 points"
+    );
+  });
+
+  it("return invalid json", async () => {
+    const res = await fetch("http://localhost:3000/api/spend", {
+      body: "hello",
+      method: "POST",
+    });
+    const spentTransactions = await res.json();
+    expect(res.status).toBe(400);
+    expect(spentTransactions).toBe("Invalid JSON");
   });
 });

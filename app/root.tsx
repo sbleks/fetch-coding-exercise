@@ -32,7 +32,7 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <header>
+        <header className="sticky top-0 z-30">
           <nav className="rounded border-b border-gray-200 bg-white px-2  py-4 sm:px-6">
             <div className="container mx-auto flex flex-wrap items-center justify-between text-[#2f0c38]">
               <Link to="/" className="flex items-center">

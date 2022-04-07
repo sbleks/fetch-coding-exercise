@@ -1,7 +1,5 @@
 import { prisma } from "~/db.server";
-
 import type { Transactions } from "@prisma/client";
-import { json } from "remix";
 
 export async function getBalances() {
   const transactions = await prisma.transactions.groupBy({
@@ -11,10 +9,10 @@ export async function getBalances() {
     },
   });
 
-  const balances = transactions.map((transaction) => ({
-    payer: transaction.payer,
-    points: transaction._sum.points,
-  }));
+  let balances = {};
+  transactions.forEach((transaction) => {
+    balances = { ...balances, [transaction.payer]: transaction._sum.points };
+  });
 
   return balances;
 }
@@ -89,15 +87,15 @@ export async function getSpendableTransactions() {
 
 export async function distributePoints({
   pointsToSpend,
-  positiveTransactions,
+  spendableTransactions,
 }: {
   pointsToSpend: number;
-  positiveTransactions: Transactions[];
+  spendableTransactions: Transactions[];
 }) {
   let remainingSpend = pointsToSpend;
   let updatedTransactions: Transactions[] = [];
 
-  positiveTransactions.map((transaction) => {
+  spendableTransactions.map((transaction) => {
     if (remainingSpend === 0 || transaction.points === 0) return null;
     else if (transaction.points >= remainingSpend) {
       transaction.points -= remainingSpend;

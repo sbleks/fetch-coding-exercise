@@ -10,7 +10,7 @@ After you clone the repository and navigate into the project's folder, let's get
 npm install
 ```
 
-To make sure everything is set up correctly, run:
+To make sure everything is set up correctly and the database is cleared out, run:
 
 ```
 npm run setup
@@ -22,34 +22,101 @@ Now you are ready to start the development server! Go ahead and run
 npm run dev
 ```
 
-Navigate your browser to `http://localhost:3000/` and follow the instructions to use the service!
+## Adding transactions
 
-## File Structure
+```
+https://localhost:3000/api/add
+```
 
-This service is using [Remix](https://remix.run/) as its framework. Code for the lives in the `/app` directory.
+The add API takes a POST request with JSON transactions that have a payer, points, and optional timestamp.
 
-This service has three API routes:
+Examples:
 
-- Get Balances
-- Add Points
-- Spend Points
+### A single transaction
 
-### Get Balances
+```json
+{ "payer": "DANNON", "points": 1000, "timestamp": "2020-11-02T14:00:00Z" }
+```
 
-The API for this lives at `/app/api/balances.ts`. This file exports an Action function that handles all incoming POST requests on the server. It uses `getBalances` to return the balances of all the payers in the database. `getBalances` lives in the `/app/models/transactions.server.ts` file which contains all the helper functions I have written for this service.
+### An array of transactions
 
-Note: Any file that ends in `.server.ts` lets Remix know that it should only live on the server and never be sent to the client.
+```json
+[
+  { "payer": "DANNON", "points": 1000, "timestamp": "2020-11-02T14:00:00Z" },
+  { "payer": "UNILEVER", "points": 200, "timestamp": "2020-10-31T11:00:00Z" },
+  { "payer": "DANNON", "points": -200, "timestamp": "2020-10-31T15:00:00Z" },
+  {
+    "payer": "MILLER COORS",
+    "points": 10000,
+    "timestamp": "2020-11-01T14:00:00Z"
+  },
+  { "payer": "DANNON", "points": 300, "timestamp": "2020-10-31T10:00:00Z" }
+]
+```
 
-### Add Points
+## Spending Points
 
-The API for this lives at `/app/api/add.ts`. This API uses an Action function that handles all incoming POST requests on the server. This API parses the JSON data that is sent and adds the points to the database. The function validates that the incoming data is JSON and handles single point additions as well as multiple point additions as a JSON array.
+```
+https://localhost:3000/api/spend
+```
 
-### Spend Points
+The spend API takes a POST request with a JSON object containing the amount of points you would like to spend. The API will either return an array of JSON transactions or an error if you do not have enough points to complete the spend.
 
-The API for this lives at `/app/api/spend.ts`. This API uses an Action function that handles all incoming POST requests on the server.
+### Example Spend Data
 
-This API uses the `getTransactions` function to get all transactions from the database. It separates the positive and negative transactions into two arrays and subtracts the negative transactions from the positive using the rules in the exercise.
+```json
+{ "points": 5000 }
+```
 
-It then spends the requested amount of points against the remaining transactions that have a positive point value. If there are points left after each positive transaction has been spent to zero, an insufficient balance response is returned.
+### Example Spend Response
 
-If all of the points were spent successfully, the function returns the negative transactions that it will add to the database.
+```json
+[
+  {
+    "payer": "DANNON",
+    "points": -100
+  },
+  {
+    "payer": "UNILEVER",
+    "points": -200
+  },
+  {
+    "payer": "MILLER COORS",
+    "points": -4700
+  }
+]
+```
+
+## Getting Balances
+
+```
+https://localhost:3000/api/balances
+```
+
+The balances API takes a POST request and returns the balances of each payer.
+
+### Example Response
+
+```json
+{
+  "DANNON": 1000,
+  "MILLER COORS": 5300,
+  "UNILEVER": 0
+}
+```
+
+## Additional Helper APIs
+
+### Clear Database
+
+```
+https://localhost:3000/api/clear
+```
+
+### Seed Database
+
+```
+https://localhost:3000/api/seed
+```
+
+This API clears the database and adds the example transactions to add.
