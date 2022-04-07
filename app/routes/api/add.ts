@@ -1,14 +1,14 @@
 import { ActionFunction, json } from "remix";
-import { addTransaction } from "~/models/transactions.server";
+import { addTransaction } from "~/transactions.server";
 
 export const action: ActionFunction = async ({ request }) => {
   let data;
   try {
     data = await request.json();
   } catch (error) {
-    return new Response("Invalid JSON", { status: 400 });
+    return new Response("The data you sent was not JSON", { status: 400 });
   }
-  if (!data) return new Response("Invalid data", { status: 400 });
+  if (!data) return new Response("You did not send any data", { status: 400 });
   if (!Array.isArray(data)) {
     const dataArray = [data];
     const createdTransactions = await addTransaction(dataArray);
